@@ -1,6 +1,9 @@
+/* 5. Render the trending music on browser load. currently on blank search trending music displays */
+
 window.addEventListener('load', (event) => {
     SoundCloudAPI.getTrack();
 });
+
 
 /* 1. Search */
 
@@ -124,23 +127,30 @@ SoundCloudAPI.getEmbed = function(trackURL){
         var sidebar = document.querySelector('.js-playlist');
         
         box = document.createElement('div');
+        box.style.position = "relative";
         box.innerHTML = embed.html;
+        
+        crossBtn = document.createElement("button");
+        crossBtn.classList.add("ui", "red", "button", "crossBtn");
+        crossBtn.innerHTML = "X";
+        
+        box.appendChild(crossBtn);
         
         sidebar.insertBefore(box, sidebar.firstChild);
         localStorage.setItem("key", sidebar.innerHTML);
-
+        
+        /*Below Codes are on Test to remove items*/
+        
+//        console.log("This property pointing" + this);
+        crossBtn.addEventListener('click', function(){
+            localStorage.removeItem("key");
+            console.log("Button Clicked");  
+})
     });  
 }
 
 var sidebar = document.querySelector('.js-playlist');
 sidebar.innerHTML = localStorage.getItem("key");
-
-
-/* 5. Render the trending music on browser load. currently on blank search trending music displays */
-
-
-
-
 
 
 
