@@ -23,6 +23,33 @@ var budgetController = (function () {
         }
     }
 
+    return {
+        addItems: function (type, desc, val) {
+            var newItem, ID;
+
+            //create new ID
+            if (data.Stored[type].length > 0) {
+                ID = data.Stored[type][data.Stored[type].length - 1].id + 1;
+            } else {
+                ID = 0;
+            }
+
+
+            //create new item based on 'inc' or 'exp'
+            if (type === 'inc') {
+                newItem = new Income(ID, desc, val);
+            } else if (type === 'exp') {
+                newItem = new Expense(ID, desc, val);
+            }
+
+            //push new item to the data structure
+            data.Stored[type].push(newItem);
+
+            //return the newly created item
+            return newItem;
+        }
+    }
+
 })();
 
 //UI Module: for interacting and updating the UI
@@ -32,19 +59,42 @@ var UIController = (function () {
         type: '.add__type',
         description: '.add__description',
         value: '.add__value',
-        addBtn: ".add__btn"
+        addBtn: ".add__btn",
+        incomeContainer: ".income__list",
+        expenseContainer: ".expenses__list"
     }
 
     return {
-        DOMInputs: function () {
+        getDOMInputs: function () {
             return {
                 type: document.querySelector(domStrings.type).value,
                 description: document.querySelector(domStrings.description).value,
                 value: document.querySelector(domStrings.value).value
             }
         },
-        DOMStrings: function () {
+
+        getDOMStrings: function () {
             return domStrings;
+        },
+
+        addListItem: function (obj, type) {
+            var html, newHtml, element;
+            // Add HTML String with Placeholder text
+            if (type === 'inc') {
+                element = domStrings.incomeContainer;
+                html = '<div class="item clearfix" id="income-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">+ %value%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+            } else if (type === 'exp') {
+                element = domStrings.expenseContainer;
+                html = '<div class="item clearfix" id="expense-%id%"><div class="item__description">%description%</div><div class="right clearfix"><div class="item__value">- %value%</div><div class="item__percentage">21%</div><div class="item__delete"><button class="item__delete--btn"><i class="ion-ios-close-outline"></i></button></div></div></div>';
+            }
+
+            // Replace Placeholder with actual text
+            newHtml = html.replace('%id%', obj.id);
+            newHtml = newHtml.replace('%description%', obj.description);
+            newHtml = newHtml.replace('%value%', obj.value);
+
+            // Insert HTML to dom
+            document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
         }
     }
 })();
@@ -53,7 +103,7 @@ var UIController = (function () {
 var Controller = (function (budgetCtrl, UIctrl) {
 
     var setupFunction = function () {
-        var DOM = UIctrl.DOMStrings();
+        var DOM = UIctrl.getDOMStrings();
 
         document.querySelector(DOM.addBtn).addEventListener('click', controlFunction);
         document.addEventListener("keypress", function (e) {
@@ -64,9 +114,16 @@ var Controller = (function (budgetCtrl, UIctrl) {
     }
 
     function controlFunction() {
-        //1. get Input value from UI
+        var input, newItem;
 
-        //2. Update UI add Income or Expense 
+        //1. get Input value from UI
+        input = UIctrl.getDOMInputs();
+
+        //2. add the item to the budget controller
+        newItem = budgetCtrl.addItems(input.type, input.description, input.value);
+
+        //3. add item to the UI
+        UIctrl.addListItem(newItem, input.type);
     }
 
     return {
