@@ -12,15 +12,31 @@ var budgetController = (function () {
         this.value = value;
     }
 
+    var calculateTotal = function (type) {
+        var sum = 0;
+        data.Stored[type].forEach(function (current) {
+            sum += current.value;
+        })
+        /*
+        [200, 400]
+        sum = 0+ 200,
+        sum = 200 + 400,
+        sum = 600;
+        */
+        data.totals[type] = sum;
+    }
+
     var data = {
         Stored: {
             inc: [],
             exp: []
         },
         totals: {
-            income: 0,
-            expense: 0
-        }
+            inc: 0,
+            exp: 0
+        },
+        budget: 0,
+        percentage: -1 // -1 means not existed at begining
     }
 
     return {
@@ -47,6 +63,37 @@ var budgetController = (function () {
 
             //return the newly created item
             return newItem;
+        },
+
+        budgetCalculation: function () {
+            // calculate total expense and income
+            calculateTotal('exp');
+            calculateTotal('inc');
+
+            // Calculate the budget: income - expense
+            data.budget = data.totals.inc - data.totals.exp;
+
+            //  calculate percentage of income that we spent
+            if (data.totals.inc > 0) {
+                data.percentage = Math.round((data.totals.exp / data.totals.inc) * 100);
+                // for example: 100 0f 300; 0.333 * 100; 33.3333; math.round(33.3333); 33%
+            } else {
+                data.percentage = -1;
+            }
+
+        },
+
+        getBudget: function () {
+            return {
+                totalExp: data.totals.exp,
+                totalInc: data.totals.inc,
+                budget: data.budget,
+                percentage: data.percentage
+            }
+        },
+
+        testing: function () {
+            return data;
         }
     }
 
@@ -61,7 +108,11 @@ var UIController = (function () {
         value: '.add__value',
         addBtn: ".add__btn",
         incomeContainer: ".income__list",
-        expenseContainer: ".expenses__list"
+        expenseContainer: ".expenses__list",
+        budgetLabel: ".budget__value",
+        incomeLabel: ".budget__income--value",
+        expenseLabel: ".budget__expenses--value",
+        percentageLabel: ".budget__expenses--percentage",
     }
 
     return {
@@ -69,7 +120,7 @@ var UIController = (function () {
             return {
                 type: document.querySelector(domStrings.type).value,
                 description: document.querySelector(domStrings.description).value,
-                value: document.querySelector(domStrings.value).value
+                value: parseFloat(document.querySelector(domStrings.value).value)
             }
         },
 
@@ -95,6 +146,32 @@ var UIController = (function () {
 
             // Insert HTML to dom
             document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
+        },
+
+        clearInputFields: function () {
+            var fields, fieldsArr;
+
+            fields = document.querySelectorAll(domStrings.description + ',' + domStrings.value);
+
+            fieldsArr = Array.prototype.slice.call(fields);
+
+            fieldsArr.forEach(function (current, index, arr) {
+                current.value = "";
+            });
+
+            fieldsArr[0].focus();
+        },
+
+        displayBudget: function (obj) {
+            document.querySelector(domStrings.budgetLabel).textContent = obj.budget;
+            document.querySelector(domStrings.incomeLabel).textContent = obj.totalInc;
+            document.querySelector(domStrings.expenseLabel).textContent = obj.totalExp;
+
+            if (obj.percentage > 0) {
+                document.querySelector(domStrings.percentageLabel).textContent = obj.percentage + '%';
+            } else {
+                document.querySelector(domStrings.percentageLabel).textContent = '---';
+            }
         }
     }
 })();
@@ -113,22 +190,47 @@ var Controller = (function (budgetCtrl, UIctrl) {
         });
     }
 
-    function controlFunction() {
+    var updateBudget = function () {
+        // Calculate the Budget
+        budgetCtrl.budgetCalculation();
+
+        // Return the budget
+        var budget = budgetCtrl.getBudget();
+
+        // Display the budget on the UI
+        UIctrl.displayBudget(budget);
+    }
+
+    var controlFunction = function () {
         var input, newItem;
 
         //1. get Input value from UI
         input = UIctrl.getDOMInputs();
 
-        //2. add the item to the budget controller
-        newItem = budgetCtrl.addItems(input.type, input.description, input.value);
+        if (input.description !== "" && !isNaN(input.value) && input.value > 0) {
+            //2. add the item to the budget controller
+            newItem = budgetCtrl.addItems(input.type, input.description, input.value);
 
-        //3. add item to the UI
-        UIctrl.addListItem(newItem, input.type);
+            //3. add item to the UI
+            UIctrl.addListItem(newItem, input.type);
+
+            //4. Clear Input Fields
+            UIctrl.clearInputFields();
+
+            //5. Calculate and update budget
+            updateBudget();
+        }
     }
 
     return {
         init: function () {
             console.log("App has Inittialized");
+            UIctrl.displayBudget({
+                totalExp: 0,
+                totalInc: 0,
+                budget: 0,
+                percentage: -1
+            });
             setupFunction();
         }
     }
