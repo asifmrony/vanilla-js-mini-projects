@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rock Paper Scissors</title>
+</head>
+<body>
+    <h2>Rock Paper Scissors Javascript Version</h2>
+    <script>
+        // 1. getComputerChoice Function: take a array of 3 gamevalue and
+        //     return a random value from "Rock", "Paper", "Scissor"
+        function getComputerChoice() {
+            let values = ['rock', 'paper', 'scissors'];
+            let randomValue = values[Math.floor(Math.random() * values.length)];
+            return randomValue;
+        }
+
+        // 3. playRound Function
+        function playRound(playerSelection, computerSelection) {
+           if(playerSelection ==='rock' && computerSelection === 'paper') 
+               return 'Computer win! Paper beats Rock';
+           if(playerSelection ==='paper' && computerSelection === 'rock') 
+               return 'You win! Paper beats Rock';
+           if(playerSelection ==='rock' && computerSelection === 'scissors') 
+               return 'You win! Rock beats scissors';
+           if(playerSelection ==='scissors' && computerSelection === 'rock')
+               return 'Computer win! Rock beats scissors';
+           if(playerSelection ==='paper' && computerSelection === 'scissors') 
+               return 'Computer win! scissors beats paper';
+           if(playerSelection ==='scissors' && computerSelection === 'paper') 
+               return 'You win! scissors beats paper';
+           if(playerSelection ==='rock' && computerSelection === 'rock')
+               return 'Tie! Play Again';
+           if(playerSelection ==='paper' && computerSelection === 'paper') 
+               return 'Tie! Play Again';
+           if(playerSelection ==='scissors' && computerSelection === 'scissors') 
+               return 'Tie! Play Again';
+        }
+
+        //4. New function game
+        (function game() {
+            for(let i = 0; i < 5; i++) {
+                // 2. get playerSelection
+                const playerSelection = prompt('Choose your object');
+                if(playerSelection) {
+                    const computerSelection = getComputerChoice();
+                    console.log(playRound(playerSelection.toLowerCase(), computerSelection));
+                } else {
+                    alert('Please enter a valid object');
+                }
+            }
+        })();
+
+        // console.log(getComputerChoice());
+        
+    </script>
+</body>
+</html>
