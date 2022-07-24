@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etch a Sketch Js Version</title>
+    <style>
+        .wrapper {
+            display: flex;
+            gap: 10px;
+            flex-flow: row wrap;
+            width: 900px;
+            margin: 0 auto;
+        }
+        .wrapper > div {
+            border: 2px solid black;
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            vertical-align: middle;
+            line-height: 3;
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="container"></div>
+    
+    <script>
+        const container = document.getElementById('container');
+        let wrapperDiv = document.createElement('div');
+        wrapperDiv.setAttribute('class', 'wrapper');
+        container.append(wrapperDiv);
+
+        function createGrid(row, column) {
+            const totalboxes = row * column;
+            for(let x = 0; x < totalboxes; x++) {
+                const div = document.createElement('div');
+                div.textContent = x + 1;
+            
+                if(x%2 === 0) {
+                    div.style.backgroundColor = 'green';
+                } else {
+                    div.style.backgroundColor = 'red';
+                }
+                wrapperDiv.append(div);
+            }
+        }
+
+        createGrid(16, 16);
+    </script>
+</body>
+</html>
