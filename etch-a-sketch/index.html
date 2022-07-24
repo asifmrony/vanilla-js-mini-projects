@@ -6,49 +6,98 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Etch a Sketch Js Version</title>
     <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
         .wrapper {
             display: flex;
             gap: 10px;
             flex-flow: row wrap;
-            width: 900px;
+            /* width: 900px; */
             margin: 0 auto;
         }
         .wrapper > div {
             border: 2px solid black;
-            width: 50px;
-            height: 50px;
-            text-align: center;
-            vertical-align: middle;
-            line-height: 3;
+            /* width: calc(900px / 4 - 10px); */
+            /* height: 50px; */
+            display: flex;
+            justify-content: center;
+            align-items: center;
             margin: 5px;
+            transition: all 100ms;
+        }
+        .bg-green {
+            background-color: green;
+        }
+        .bg-red {
+            background-color: red;
+        }
+        .wrapper > div.hovered {
+            cursor: pointer;
+            background-color: lightpink;
+            transform: scale(1.1);
+        }
+        .btn {
+            display: block;
+            text-align: center;
+            margin: 2em auto;
+            padding: 0.4em 1em;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
         }
     </style>
 </head>
 <body>
-    <div id="container"></div>
+    <div id="container">
+        <button id="setGridButton" class="btn">Set total number of Grids</button>
+    </div>
     
     <script>
+        // Problem Statement Input
+        const gridWidth = 900;
+
         const container = document.getElementById('container');
         let wrapperDiv = document.createElement('div');
         wrapperDiv.setAttribute('class', 'wrapper');
+        wrapperDiv.style.width = gridWidth + 'px';
         container.append(wrapperDiv);
+
+        //Grid
+        gridButton = document.getElementById('setGridButton');
+        gridButton.addEventListener('click', function(){
+            let userValue = +prompt('How many squares per side?', 6);
+            if(userValue < 100) {
+              wrapperDiv.innerHTML = '';
+              createGrid(userValue, userValue);  
+            } 
+            else alert('Please enter value less than 100');
+        })
 
         function createGrid(row, column) {
             const totalboxes = row * column;
             for(let x = 0; x < totalboxes; x++) {
                 const div = document.createElement('div');
                 div.textContent = x + 1;
+                let squareShape = `calc(${gridWidth}px / ${column} - 10px)`;
+                div.style.setProperty('width', squareShape);
+                div.style.setProperty('height', squareShape);
             
                 if(x%2 === 0) {
-                    div.style.backgroundColor = 'green';
+                    div.classList.add('bg-green');
                 } else {
-                    div.style.backgroundColor = 'red';
+                    div.classList.add('bg-red');
                 }
+
+                //color changes when mouse over divs
+                div.addEventListener('mouseover', function(e){
+                    e.currentTarget.classList.toggle('hovered');
+                })
                 wrapperDiv.append(div);
             }
         }
 
-        createGrid(16, 16);
+        createGrid(6, 6);
     </script>
 </body>
 </html>
